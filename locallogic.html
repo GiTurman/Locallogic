@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalLogic — ლოკალური პროგრამული გადაწყვეტილებები</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Noto+Sans+Georgian:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent: #00e5a0;
+            --accent-dim: #00e5a033;
+            --accent-glow: #00e5a018;
+            --text-primary: #e8e8ed;
+            --text-secondary: #8a8a9a;
+            --text-muted: #55556a;
+            --border: #252535;
+            --border-hover: #353548;
+            --orange: #ff6b35;
+            --blue: #4d7cff;
+            --purple: #a855f7;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans Georgian', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* === GRID BACKGROUND === */
+        .grid-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 80px 80px;
+            opacity: 0.15;
+        }
+
+        .grid-bg::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(ellipse 60% 50% at 50% 0%, var(--accent-glow) 0%, transparent 70%);
+        }
+
+        /* === NAV === */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.8);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .logo-icon::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 2.5px solid var(--bg-primary);
+            border-radius: 3px;
+        }
+
+        .logo-text {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 36px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-cta {
+            padding: 10px 24px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Noto Sans Georgian', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-cta:hover {
+            box-shadow: 0 0 30px var(--accent-dim);
+            transform: translateY(-1px);
+        }
+
+        /* === HERO === */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 140px 40px 80px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-dim);
+            border-radius: 100px;
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 500;
+            width: fit-content;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease both;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero h1 {
+            font-size: clamp(42px, 6vw, 76px);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 28px;
+            animation: fadeInUp 0.8s ease 0.15s both;
+        }
+
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), #00b8d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 580px;
+            line-height: 1.8;
+            margin-bottom: 48px;
+            animation: fadeInUp 0.8s ease 0.3s both;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            animation: fadeInUp 0.8s ease 0.45s both;
+        }
+
+        .btn-primary {
+            padding: 16px 36px;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Noto Sans Georgian', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 40px var(--accent-dim);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            padding: 16px 36px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'Noto Sans Georgian', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card);
+        }
+
+        .hero-visual {
+            position: absolute;
+            right: -100px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 500px;
+            height: 500px;
+            opacity: 0.12;
+            pointer-events: none;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* === STATS BAR === */
+        .stats-bar {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto 120px;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 40px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+
+        .stat-item:hover {
+            background: var(--bg-card);
+        }
+
+        .stat-number {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        /* === SECTION COMMON === */
+        section {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 140px;
+        }
+
+        .section-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 24px;
+            height: 1px;
+            background: var(--accent);
+        }
+
+        .section-title {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .section-desc {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 560px;
+            margin-bottom: 60px;
+            line-height: 1.8;
+        }
+
+        /* === SERVICES === */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .service-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 44px 36px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .service-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+            font-size: 24px;
+            position: relative;
+        }
+
+        .service-card:nth-child(1) .service-icon {
+            background: rgba(77, 124, 255, 0.12);
+            color: var(--blue);
+            border: 1px solid rgba(77, 124, 255, 0.2);
+        }
+
+        .service-card:nth-child(2) .service-icon {
+            background: rgba(168, 85, 247, 0.12);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+
+        .service-card:nth-child(3) .service-icon {
+            background: rgba(255, 107, 53, 0.12);
+            color: var(--orange);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        .service-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.3px;
+        }
+
+        .service-card p {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .service-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 24px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .service-card:nth-child(1) .service-tag {
+            background: rgba(77, 124, 255, 0.08);
+            color: var(--blue);
+            border: 1px solid rgba(77, 124, 255, 0.15);
+        }
+
+        .service-card:nth-child(2) .service-tag {
+            background: rgba(168, 85, 247, 0.08);
+            color: var(--purple);
+            border: 1px solid rgba(168, 85, 247, 0.15);
+        }
+
+        .service-card:nth-child(3) .service-tag {
+            background: rgba(255, 107, 53, 0.08);
+            color: var(--orange);
+            border: 1px solid rgba(255, 107, 53, 0.15);
+        }
+
+        /* === WHY SECTION === */
+        .why-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .why-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 36px;
+            transition: all 0.4s ease;
+            display: flex;
+            gap: 24px;
+        }
+
+        .why-card:hover {
+            border-color: var(--border-hover);
+            background: var(--bg-card-hover);
+        }
+
+        .why-icon {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-dim);
+        }
+
+        .why-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.2px;
+        }
+
+        .why-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* === PROCESS === */
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            position: relative;
+        }
+
+        .process-grid::before {
+            content: '';
+            position: absolute;
+            top: 44px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-hover), var(--border-hover), transparent);
+            z-index: 0;
+        }
+
+        .process-step {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-num {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--accent);
+        }
+
+        .process-step h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .process-step p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* === CTA SECTION === */
+        .cta-section {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px 140px;
+        }
+
+        .cta-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-box h2 {
+            font-size: clamp(28px, 3.5vw, 40px);
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .cta-box .section-desc {
+            max-width: 500px;
+            margin: 0 auto 40px;
+            text-align: center;
+        }
+
+        .cta-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .cta-form input,
+        .cta-form textarea {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: 'Noto Sans Georgian', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+            resize: none;
+        }
+
+        .cta-form input::placeholder,
+        .cta-form textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .cta-form input:focus,
+        .cta-form textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .cta-form textarea {
+            min-height: 120px;
+        }
+
+        .cta-form .btn-primary {
+            width: 100%;
+            justify-content: center;
+            padding: 18px;
+            font-size: 16px;
+        }
+
+        /* === FOOTER === */
+        footer {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid var(--border);
+            padding: 60px 40px;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* === TERMINAL DECORATION === */
+        .terminal-deco {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 48px;
+            max-width: 480px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .terminal-deco .line {
+            margin-bottom: 6px;
+        }
+
+        .terminal-deco .prompt {
+            color: var(--accent);
+        }
+
+        .terminal-deco .cmd {
+            color: var(--text-secondary);
+        }
+
+        .terminal-deco .output {
+            color: var(--text-muted);
+        }
+
+        .terminal-deco .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--accent);
+            animation: blink 1.2s infinite;
+            vertical-align: text-bottom;
+            margin-left: 2px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* === SCROLL ANIMATIONS === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 900px) {
+            nav { padding: 16px 20px; }
+            .nav-links { display: none; }
+            .hero { padding: 120px 20px 60px; }
+            .hero-desc { font-size: 16px; }
+            .stats-bar {
+                grid-template-columns: 1fr;
+                margin: 0 20px 80px;
+                padding: 0;
+            }
+            section { padding: 0 20px 100px; }
+            .services-grid { grid-template-columns: 1fr; }
+            .why-grid { grid-template-columns: 1fr; }
+            .process-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 32px;
+            }
+            .process-grid::before { display: none; }
+            .cta-section { padding: 0 20px 100px; }
+            .cta-box { padding: 48px 24px; }
+            .form-row { grid-template-columns: 1fr; }
+            .hero-actions { flex-direction: column; }
+            .btn-primary, .btn-secondary { text-align: center; justify-content: center; }
+            .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
+            .footer-links { flex-direction: column; gap: 16px; align-items: center; }
+        }
+
+        /* === MOBILE NAV === */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .mobile-menu-btn span {
+            width: 22px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        @media (max-width: 900px) {
+            .mobile-menu-btn { display: flex; }
+            .nav-cta-desktop { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-text">Local<span>Logic</span></div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#services">სერვისები</a></li>
+            <li><a href="#why">უპირატესობები</a></li>
+            <li><a href="#process">პროცესი</a></li>
+            <li><a href="#contact">კონტაქტი</a></li>
+        </ul>
+        <a href="#contact" class="nav-cta nav-cta-desktop">კონსულტაცია</a>
+        <button class="mobile-menu-btn" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="hero-badge">ლოკალური გადაწყვეტილებები</div>
+        <h1>
+            თქვენი მონაცემები,<br>
+            <span class="highlight">თქვენს ხელში.</span>
+        </h1>
+        <p class="hero-desc">
+            ვქმნით ინდივიდუალურ პროგრამულ უზრუნველყოფას, რომელიც მუშაობს ლოკალურად — თქვენს ინფრასტრუქტურაში, თქვენი კონტროლით, ყოველთვიური გადასახადების გარეშე.
+        </p>
+        <div class="hero-actions">
+            <a href="#contact" class="btn-primary">
+                პროექტის განხილვა
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#services" class="btn-secondary">სერვისების ნახვა</a>
+        </div>
+        <div class="terminal-deco">
+            <div class="line"><span class="prompt">~</span> <span class="cmd">locallogic init --project "your-idea"</span></div>
+            <div class="line"><span class="output">→ Analyzing requirements...</span></div>
+            <div class="line"><span class="output">→ Building local solution...</span></div>
+            <div class="line"><span class="prompt">✓</span> <span class="cmd">Ready. No cloud required.</span><span class="cursor"></span></div>
+        </div>
+    </header>
+
+    <!-- STATS -->
+    <div class="stats-bar reveal">
+        <div class="stat-item">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">ლოკალური ინფრასტრუქტურა</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">0₾</div>
+            <div class="stat-label">ყოველთვიური გადასახადი</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">ოფლაინ მუშაობა</div>
+        </div>
+    </div>
+
+    <!-- SERVICES -->
+    <section id="services">
+        <div class="section-label">სერვისები</div>
+        <h2 class="section-title reveal">რას ვქმნით</h2>
+        <p class="section-desc reveal">ყველა გადაწყვეტილება იქმნება ინდივიდუალურად, თქვენი ბიზნეს-ლოგიკისა და სამუშაო პროცესის გათვალისწინებით.</p>
+        <div class="services-grid">
+            <div class="service-card reveal">
+                <div class="service-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                </div>
+                <h3>პერსონალური Desktop აპლიკაციები</h3>
+                <p>ვქმნით მსუბუქ და სწრაფ პროგრამებს Windows და macOS პლატფორმებისთვის. თუ სტანდარტული ხელსაწყოები არ შეესაბამება თქვენს სამუშაო პროცესს, ჩვენ დაგიმზადებთ პროგრამას, რომელიც ზუსტად თქვენს ამოცანებს შეასრულებს.</p>
+                <div class="service-tag">Windows · macOS</div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10M9 18l3-3-3-3"/></svg>
+                </div>
+                <h3>მონაცემთა უსაფრთხო მართვა</h3>
+                <p>დაასრულეთ ქაოსი Excel-ის უამრავ ფაილში. ჩვენ ავაწყობთ ლოკალურ მონაცემთა ბაზას, სადაც ინფორმაცია იქნება სტრუქტურირებული, დაცული და ადვილად მოსაძებნი. მონაცემები ფიზიკურად მხოლოდ თქვენს კომპიუტერში დარჩება.</p>
+                <div class="service-tag">SQLite · PostgreSQL</div>
+            </div>
+            <div class="service-card reveal">
+                <div class="service-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                </div>
+                <h3>რუტინის ავტომატიზაცია</h3>
+                <p>დაზოგეთ საათები ყოველდღიურ სამუშაოში. ჩვენ ვწერთ სკრიპტებს, რომლებიც ავტომატურად ამუშავებენ მონაცემებს, ქმნიან რეპორტებს, ახდენენ ფაილების სინქრონიზაციას ან აკავშირებენ სხვადასხვა სისტემებს.</p>
+                <div class="service-tag">Python · Automation</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY -->
+    <section id="why">
+        <div class="section-label">უპირატესობები</div>
+        <h2 class="section-title reveal">რატომ LocalLogic?</h2>
+        <p class="section-desc reveal">ჩვენ გვჯერა, რომ თქვენი მონაცემები და ინსტრუმენტები უნდა იყოს სრულად თქვენს კონტროლში.</p>
+        <div class="why-grid">
+            <div class="why-card reveal">
+                <div class="why-icon">🔒</div>
+                <div>
+                    <h3>მაქსიმალური კონფიდენციალურობა</h3>
+                    <p>თქვენი ბიზნეს-მონაცემები არ იტვირთება უცხოურ სერვერებზე. ყველაფერი ინახება თქვენს ინფრასტრუქტურაში — სრული კონტროლი თქვენს ხელშია.</p>
+                </div>
+            </div>
+            <div class="why-card reveal">
+                <div class="why-icon">⚡</div>
+                <div>
+                    <h3>სისწრაფე და ავტონომიურობა</h3>
+                    <p>პროგრამები მუშაობს ინტერნეტის გარეშეც, მყისიერი რეაგირებით და ყოველგვარი შეფერხების გარეშე. არ არის დამოკიდებული გარე სერვისებზე.</p>
+                </div>
+            </div>
+            <div class="why-card reveal">
+                <div class="why-icon">💰</div>
+                <div>
+                    <h3>ერთჯერადი ინვესტიცია</h3>
+                    <p>დაივიწყეთ ყოველთვიური სააბონენტო გადასახადები. თქვენ იხდით მხოლოდ პროგრამის შექმნაში და ის სამუდამოდ თქვენს მფლობელობაში რჩება.</p>
+                </div>
+            </div>
+            <div class="why-card reveal">
+                <div class="why-icon">🛠️</div>
+                <div>
+                    <h3>სრული ადაპტაცია</h3>
+                    <p>ჩვენ არ გთავაზობთ „შაბლონურ" გადაწყვეტილებებს. ყოველი ღილაკი და ფუნქცია იქმნება თქვენი მოთხოვნის საფუძველზე — ზუსტად თქვენზე მორგებული.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section id="process">
+        <div class="section-label">პროცესი</div>
+        <h2 class="section-title reveal">როგორ ვმუშაობთ</h2>
+        <p class="section-desc reveal">მარტივი და გამჭვირვალე პროცესი იდეიდან მზა პროდუქტამდე.</p>
+        <div class="process-grid reveal">
+            <div class="process-step">
+                <div class="step-num">01</div>
+                <h4>კონსულტაცია</h4>
+                <p>გვეუბნებით რა პრობლემა გაქვთ ან რა იდეა გაგიჩნდათ</p>
+            </div>
+            <div class="process-step">
+                <div class="step-num">02</div>
+                <h4>გადაწყვეტის დიზაინი</h4>
+                <p>ვქმნით ლოგიკურ არქიტექტურას და ვიზუალურ პროტოტიპს</p>
+            </div>
+            <div class="process-step">
+                <div class="step-num">03</div>
+                <h4>დეველოპმენტი</h4>
+                <p>ვაშენებთ პროგრამას რეგულარული პროგრეს-განახლებებით</p>
+            </div>
+            <div class="process-step">
+                <div class="step-num">04</div>
+                <h4>ჩაბარება</h4>
+                <p>თქვენ იღებთ მზა პროდუქტს, ინსტრუქციასთან ერთად</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section" id="contact">
+        <div class="cta-box reveal">
+            <div class="section-label" style="justify-content: center;">კონტაქტი</div>
+            <h2>გაქვთ იდეა ან კონკრეტული პრობლემა?</h2>
+            <p class="section-desc">მოგვწერეთ მოკლედ თქვენი საჭიროების შესახებ და ჩვენ შემოგთავაზებთ ოპტიმალურ ლოგიკურ გადაწყვეტას.</p>
+            <div class="cta-form">
+                <div class="form-row">
+                    <input type="text" placeholder="თქვენი სახელი" />
+                    <input type="email" placeholder="ელ-ფოსტა" />
+                </div>
+                <input type="text" placeholder="თქვენი კომპანია (არასავალდებულო)" />
+                <textarea placeholder="აღწერეთ მოკლედ რა პრობლემა გაქვთ ან რა გინდათ რომ შეიქმნას..."></textarea>
+                <button class="btn-primary" type="button">
+                    კონსულტაციის დაწყება
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <a href="#" class="logo">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">Local<span>Logic</span></div>
+                </a>
+                <p>© 2025 LocalLogic. ყველა უფლება დაცულია.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#services">სერვისები</a>
+                <a href="#why">უპირატესობები</a>
+                <a href="#process">პროცესი</a>
+                <a href="#contact">კონტაქტი</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, i * 80);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        reveals.forEach(el => observer.observe(el));
+
+        // Smooth scroll for nav
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', e => {
+                e.preventDefault();
+                const target = document.querySelector(a.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>
