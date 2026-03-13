@@ -1009,21 +1009,22 @@
             </div>
         </div>
 
-        <div class="cta-form">
-            <div class="form-row">
-                <input type="text" placeholder="თქვენი სახელი" />
-                <input type="email" placeholder="ელ-ფოსტა" />
-            </div>
-            <input type="text" placeholder="თქვენი კომპანია (არასავალდებულო)" />
-            <textarea placeholder="აღწერეთ მოკლედ რა პრობლემა გაქვთ ან რა გინდათ რომ შეიქმნას..."></textarea>
-            <button class="btn-primary" type="button">
-                კონსულტაციის დაწყება
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-        </div>
+       <form class="cta-form" action="https://formspree.io/f/aiinovafi@gmail.com" method="POST">
+    <div class="form-row">
+        <input type="text" name="სახელი" placeholder="თქვენი სახელი" required />
+        <input type="email" name="მეილი" placeholder="ელ-ფოსტა" required />
     </div>
-</div>
-
+    <input type="text" name="კომპანია" placeholder="თქვენი კომპანია (არასავალდებულო)" />
+    <textarea name="შეტყობინება" placeholder="აღწერეთ მოკლედ რა პრობლემა გაქვთ..." required></textarea>
+    
+    <button class="btn-primary" type="submit">
+        კონსულტაციის დაწყება
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+    </button>
+</form>
+        
 <footer>
     <div class="footer-inner">
         <div class="footer-left">
